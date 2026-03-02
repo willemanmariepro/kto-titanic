@@ -1,4 +1,16 @@
-# TODO : Créer le projet Mlflow
+# projet Mlflow
+
+name: kto-titanic
+
+entry_points:
+
+  main:
+    parameters:
+      path: str
+      n_estimators: {type: int, default: 100}
+      max_depth: {type: int, default: 10}
+      random_state: {type: int, default: 42}
+    command: "uv -n run --no-sync -m titanic.training.main --input_data_path {path} --n_estimators {n_estimators} --max_depth {max_depth} --random_state {random_state}"
 
 # TODO : D'abord en local dans le venv
 # TODO : Puis dans un conteneur Docker créé à partir de votre image stockée dans quay
