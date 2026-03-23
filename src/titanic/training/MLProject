@@ -1,7 +1,8 @@
-# projet Mlflow
-
 name: kto-titanic
 
+docker_env:
+  image: quay.io/$$$$$.IO/titanic/experiment # <--- Remplacez par votre identifiant quay.io
+  
 entry_points:
 
   main:
@@ -11,8 +12,3 @@ entry_points:
       max_depth: {type: int, default: 10}
       random_state: {type: int, default: 42}
     command: "uv -n run --no-sync -m titanic.training.main --input_data_path {path} --n_estimators {n_estimators} --max_depth {max_depth} --random_state {random_state}"
-
-# TODO : D'abord en local dans le venv
-# TODO : Puis dans un conteneur Docker créé à partir de votre image stockée dans quay
-
-# TODO : Définir l'entrypoint main, déclarer les paramètres, lancer le workflow avec uv run

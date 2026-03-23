@@ -1,22 +1,25 @@
 import logging
 from pathlib import Path
+import tempfile # Nouvel import pour gérer les fichiers temporaires
+
 import joblib
+import mlflow # Nouvel import pour mlflow
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-
-
-# TODO : Dans une second temps, récupérer le client mlflow nous permettant de télécharger les artifacts enregistrés à l'étape précédente
+client = mlflow.MlflowClient() # Client mlflow pour interagir avec le server de tracking
 
 ARTIFACT_PATH = "model_trained"
 
 
 def train(x_train_path: str, y_train_path: str, n_estimators: int, max_depth: int, random_state: int) -> str:
     logging.warning(f"train {x_train_path} {y_train_path}")
-
-    # fonction avec les expérimentations du notebook
-    x_train = pd.read_csv(x_train_path, index_col=False)
-    y_train = pd.read_csv(y_train_path, index_col=False)
+    x_train = pd.read_csv(
+        client.download_artifacts(run_id=mlflow.active_run().info.run_id, path=x_train_path), index_col=False # Téléchargement des données depuis mlflow
+    )
+    y_train = pd.read_csv(
+        client.download_artifacts(run_id=mlflow.active_run().info.run_id, path=y_train_path), index_col=False # Téléchargement des données depuis mlflow
+    )
 
     x_train = pd.get_dummies(x_train)
 
@@ -24,15 +27,9 @@ def train(x_train_path: str, y_train_path: str, n_estimators: int, max_depth: in
     model.fit(x_train, y_train)
 
     model_filename = "model.joblib"
+    with tempfile.TemporaryDirectory() as tmp_dir: # Utilisation d'un dossier temporaire
+        model_path = Path(tmp_dir, model_filename)
+        joblib.dump(model, model_path)
+        mlflow.log_artifact(str(model_path), ARTIFACT_PATH) # Log du modèle dans mlflow
 
-    model_path = Path("./dist/", model_filename)
-    joblib.dump(model, model_path)
-
-
-    return model_path
-
-
-
-    # TODO : Dans un second temps, récupérer les données depuis mlflow
-
-    # TODO : Dans un second temps, stocker le model en tant qu'artifact dans mlflow
+    return f"{ARTIFACT_PATH}/{model_filename}" # Retourne le chemin du modèle dans mlflow
