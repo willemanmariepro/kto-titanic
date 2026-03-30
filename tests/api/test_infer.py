@@ -35,6 +35,12 @@ with (
 ):
     from titanic.api.infer import app
 
+@pytest.fixture(autouse=True)
+def reset_oauth_env():
+    import os
+    """Force OAUTH2_DOMAIN à vide pour tous les tests."""
+    with patch.dict(os.environ, {"OAUTH2_DOMAIN": ""}, clear=False):
+        yield
 
 @pytest.fixture
 def mock_infer_model():
