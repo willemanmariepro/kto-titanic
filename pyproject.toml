@@ -22,8 +22,15 @@ build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 api = [
-    # TODO : Ajouter les dépendances manquantes pour l'API
+    "fastapi>=0.119.0",
+    "opentelemetry-api>=1.39.0",
+    "opentelemetry-sdk>=1.39.0",
+    "opentelemetry-exporter-otlp>=1.39.0",
+    "opentelemetry-instrumentation-fastapi>=0.60b0",
+    "uvicorn>=0.37.0",
+    "pyjwt[crypto]>=2.8.0",
 ]
+
 training = [
     "mlflow[extras]==3.8.1",
     "setuptools==80.9.0", # for ydata-profiling dependency, bug with python 3.13
