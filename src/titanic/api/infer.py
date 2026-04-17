@@ -55,7 +55,7 @@ class Passenger:
     def to_dict(self) -> dict:
         return {"Pclass": self.pclass.value, "Sex": self.sex.value, "SibSp": self.sibSp, "Parch": self.parch}
     
-# TODO : Faire en sorte que cette fonction soit exposée via une toute GET /health
+# DONE : Faire en sorte que cette fonction soit exposée via une toute GET /health
 @app.get("/health")
 def health() -> dict:
     return {"status": "OK"}
