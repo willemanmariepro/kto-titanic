@@ -1,6 +1,6 @@
 import os
 import asyncio
-
+from typing as Any
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import SecretStr
@@ -31,6 +31,7 @@ Examples:
 
 Be friendly and explain predictions clearly."""
 
+
 JAEGER_ENDPOINT == os.getenv("JAEGER_ENDPOINT", "http://jaeger.willemanmariepro-dev.svc.cluster.local:4318/v1/traces")
 
 set_global_textmap(TraceContextTextMapPropagator())
@@ -50,7 +51,6 @@ Traceloop.init(
 )
 
 tracer = trace.get_tracer(__name__)
-
 
 def _make_otel_headers() -> dict[str, str]:
     """Injecte le traceparent W3C dans un dict de headers."""
