@@ -8,9 +8,10 @@ from titanic.mcp_server.auth import token_manager
 
 API_URL = os.getenv("TITANIC_API_URL", "http://titanic-api-service.willemanmariepro-dev.svc.cluster.local:8080")
 
-# TODO : Créer le server MCP avec le bon nom : "titanic-mcp-server"
-
-# TODO : déclarer cette fonction en tant que tool
+# dONE : Créer le server MCP avec le bon nom : "titanic-mcp-server"
+mcp = FastMCP("titanic-mcp-server")
+# DONE : déclarer cette fonction en tant que tool
+@mcp.tool()
 async def predict_survival(pclass: int, sex: str, sibsp: int, parch: int) -> str:
     """
     Prédit la survie d'un passager du Titanic.
@@ -25,11 +26,47 @@ async def predict_survival(pclass: int, sex: str, sibsp: int, parch: int) -> str
         Prédiction de survie avec message et détails
 
     """
-    # TODO : Implémenter l'appel http sécurisé avec oAuth2 vers l'API titanic
-    return "Tool not implemented yet"
+    # DONE : Implémenter l'appel http sécurisé avec oAuth2 vers l'API titanic
+    #return "Tool not implemented yet"
+    try:
+        payload = {"pclass": pclass, "sex": sex, "sibSp": sibsp, "parch": parch}
+        headers: dict[str, str] = {"Content-Type": "application/json"}
 
-# TODO : A des fins de surveillances dans openshift, créer une custom route GET /health pour le server MCP
+        token = await token_manager.get_token()
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(f"{API_URL}/infer", json=payload, headers=headers, timeout=10.0)
+            resp.raise_for_status()
+            result = resp.json()
+
+        prediction = result[0] if isinstance(result, list) else result
+        survived = bool(prediction)
+
+        if survived:
+            return (
+                f"Good news! According to the prediction model, this passenger would have SURVIVED the Titanic "
+                f"disaster (prediction: {prediction})."
+            )
+        else:
+            return (
+                f"Unfortunately, according to the prediction model, this passenger would NOT have survived the "
+                f"Titanic disaster (prediction: {prediction})."
+            )
+    except Exception as e:
+        return f"Sorry, I encountered an error while trying to predict: {e!s}"
+
+# DONE : A des fins de surveillances dans openshift, créer une custom route GET /health pour le server MCP
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request: Request) -> Response:
+    """Health check endpoint pour Kubernetes."""
+    return JSONResponse({"status": "healthy"})
 
 if __name__ == "__main__":
-    # TODO : Démarrer le server web en local, sur le port 8080, en transport streamable-http
-    print("toto")
+    # DONE : Démarrer le server web en local, sur le port 8080, en transport streamable-http
+    #print("toto")
+    if __name__ == "__main__":
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    mcp.run(transport="streamable-http", host=host, port=port, path="/mcp")

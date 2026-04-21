@@ -31,7 +31,62 @@ jobs:
           python-version: 3.13
       - name: Install dependencies
         run: |
-            echo "To implement"
+            python -m pip install --upgrade pip
+          pip install uv
+          uv sync --group mcp-server
+
+      - name: Launch unit tests
+        run: |
+          uv run pytest tests/mcp_server
+
+      - name: Configure docker and kubectl
+        run: |
+          docker login -u="${{vars.QUAY_ROBOT_USERNAME}}" -p="${{secrets.QUAY_ROBOT_TOKEN}}" quay.io
+          kubectl config set-cluster openshift-cluster --server=${{vars.OPENSHIFT_SERVER}}
+          kubectl config set-credentials openshift-credentials --token=${{secrets.OPENSHIFT_TOKEN}}
+          kubectl config set-context openshift-context --cluster=openshift-cluster --user=openshift-credentials --namespace=${{vars.OPENSHIFT_USERNAME}}-dev
+          kubectl config use openshift-context
+
+      - name: Build and push Docker image
+        run: |
+          docker build -f k8s/mcp_server/Dockerfile -t ${{ env.MCP_SERVER_IMAGE_NAME }}:latest .
+          docker push ${{ env.MCP_SERVER_IMAGE_NAME }}:latest
+
+      - name: Create OAuth2 secret
+        run: |
+          if kubectl get secret ${{ env.MCP_SERVER_SECRET_NAME }} &>/dev/null; then
+            kubectl delete secret ${{ env.MCP_SERVER_SECRET_NAME }}
+          fi
+          kubectl create secret generic ${{ env.MCP_SERVER_SECRET_NAME }} \
+            --from-literal=client-id="${{ secrets.OAUTH2_CLIENT_ID }}" \
+            --from-literal=client-secret="${{ secrets.OAUTH2_CLIENT_SECRET }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          echo "✅ OAuth2 credentials secret created/updated"
+
+      - name: Delete MCP Server pod to refresh secret
+        run: |
+          POD=$(kubectl get pods -l app=${{ env.MCP_SERVER_DEPLOYMENT_NAME }} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+          if [ -n "$POD" ]; then
+            kubectl delete pod $POD
+            echo "✅ Pod ${{ env.MCP_SERVER_DEPLOYMENT_NAME }} supprimé, il va être recréé avec le secret à jour"
+          else
+            echo "⚠️ Aucun pod ${{ env.MCP_SERVER_DEPLOYMENT_NAME }} trouvé à supprimer (premier déploiement)"
+          fi
+
+      - name: Configure MCP manifest with OAuth2 domain
+        run: |
+          sed -i 's|PLACEHOLDER_OAUTH2_DOMAIN|${{ vars.OAUTH2_DOMAIN }}|g' k8s/mcp_server/mcp-server.yaml
+          echo "✅ OAuth2 domain configured: ${{ vars.OAUTH2_DOMAIN }}"
+
+      - name: Deploy to OpenShift
+        run: |
+          kubectl apply -f k8s/mcp_server/mcp-server.yaml
+          echo "✅ MCP Server deployment updated"
+          echo "## 🔧 MCP Server Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "📦 **Image**: ${{ env.MCP_SERVER_IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+
           
           # TODO: Saisir la suite de cette pipeline. Devrait apparaître : 
           # Install depencies, Launch unit tests,
