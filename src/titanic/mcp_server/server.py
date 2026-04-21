@@ -67,6 +67,6 @@ if __name__ == "__main__":
     # DONE : Démarrer le server web en local, sur le port 8080, en transport streamable-http
     #print("toto")
     if __name__ == "__main__":
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8000"))
-    mcp.run(transport="streamable-http", host=host, port=port, path="/mcp")
+        host = os.getenv("HOST", "0.0.0.0")
+        port = int(os.getenv("PORT", "8000"))
+        mcp.run(transport="streamable-http", host=host, port=port, path="/mcp")
