@@ -1,14 +1,11 @@
 import os
 import httpx
-# DONE : importer la librairie facilitant la mise en place de server MCP
 from fastmcp import FastMCP
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
-
-from titanic.mcp_server.auth import token_manager
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from collections.abc import Callable, Awaitable
 from fastmcp.server.dependencies import get_http_headers
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
 from opentelemetry import context as otel_context, trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -17,6 +14,10 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.propagate import extract, inject, set_global_textmap
 from opentelemetry.propagators.composite import CompositePropagator
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+
+
+from titanic.mcp_server.auth import token_manager
+
 JAEGER_ENDPOINT == os.getenv("JAEGER_ENDPOINT", "http://jaeger.willemanmariepro-dev.svc.cluster.local:4318/v1/traces")
 
 API_URL = os.getenv("TITANIC_API_URL", "http://titanic-api-service.willemanmariepro-dev.svc.cluster.local:8080")

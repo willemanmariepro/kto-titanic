@@ -1,13 +1,10 @@
 import os
 import asyncio
-from typing import Any
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import SecretStr
-# DONE : Importer le client MCP depuis la librairie facilitant les échanges MCP
 from langchain_mcp_adapters.client import MultiServerMCPClient
-# DONE : Définir le système Prompt
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -91,7 +88,7 @@ class ChatbotAgent:
         # DONE : Retourner le résultat du tool si c'est la réponse du llm, sinon, sa réponse générée.
         
         """Chat async utilisant l'adaptateur MCP Langchain officiel."""
-        
+
         with tracer.start_as_current_span("chatbot.chat") as span:
             span.set_attribute("user.message.length", len(message))
 
