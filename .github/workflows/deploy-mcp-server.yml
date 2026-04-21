@@ -17,6 +17,7 @@ env:
   MCP_SERVER_DEPLOYMENT_NAME: titanic-mcp-server
   MCP_SERVER_SECRET_NAME: mcp-oauth2-credentials
 
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
