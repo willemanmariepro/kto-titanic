@@ -16,9 +16,9 @@ from opentelemetry.propagators.composite import CompositePropagator
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from titanic.mcp_server.auth import token_manager
 
-JAEGER_ENDPOINT == os.getenv("JAEGER_ENDPOINT", "http://jaeger.willemanmariepro-dev.svc.cluster.local:4318/v1/traces")
 
 API_URL = os.getenv("TITANIC_API_URL", "http://titanic-api-service.willemanmariepro-dev.svc.cluster.local:8080")
+JAEGER_ENDPOINT = os.getenv("JAEGER_ENDPOINT", "http://jaeger.willemanmariepro-dev.svc.cluster.local:4318/v1/traces")
 
 resource = Resource(attributes={"service.name": "titanic-mcp-server"})
 provider = TracerProvider(resource=resource)

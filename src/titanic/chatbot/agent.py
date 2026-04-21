@@ -32,7 +32,7 @@ Examples:
 Be friendly and explain predictions clearly."""
 
 
-JAEGER_ENDPOINT == os.getenv("JAEGER_ENDPOINT", "http://jaeger.willemanmariepro-dev.svc.cluster.local:4318/v1/traces")
+JAEGER_ENDPOINT = os.getenv("JAEGER_ENDPOINT", "http://jaeger.willemanmariepro-dev.svc.cluster.local:4318/v1/traces")
 
 set_global_textmap(TraceContextTextMapPropagator())
 
