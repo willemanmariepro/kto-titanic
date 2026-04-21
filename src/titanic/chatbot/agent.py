@@ -34,7 +34,7 @@ class ChatbotAgent:
         # DONE : Mettre en place dans un attribut de classe la configuration du client MCP en déclarant les servers mcp cibles
         # DONE : Mettre en place dans un attribut de classe l'abstraction du LLM de Langchain en tant que ChatOpenAI
         # DONE : Faites en sorte que le mot de passe de l'API soit sécurisé avec pydantic SecretStr
-         self.mcp_server_host = mcp_server_host
+        self.mcp_server_host = mcp_server_host
         self.mcp_connections = {"titanic": {"url": f"{mcp_server_host}/mcp", "transport": "streamable_http"}}
 
         api_key = os.getenv("OPENAI_API_KEY", "dummy-key")
