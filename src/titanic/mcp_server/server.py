@@ -1,6 +1,7 @@
 import os
 import httpx
-# TODO : importer la librairie facilitant la mise en place de server MCP
+# DONE : importer la librairie facilitant la mise en place de server MCP
+from fastmcp import FastMCP
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
