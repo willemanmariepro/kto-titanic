@@ -54,7 +54,7 @@ class ChatbotAgent:
         # DONE : Vérifier si une tool a été appelée dans la réponse
         # DONE : Retourner le résultat du tool si c'est la réponse du llm, sinon, sa réponse générée.
         
-         """Chat async utilisant l'adaptateur MCP Langchain officiel."""
+        """Chat async utilisant l'adaptateur MCP Langchain officiel."""
         mcp_client = MultiServerMCPClient(self.mcp_connections)  # type: ignore
 
         tools = await mcp_client.get_tools()
