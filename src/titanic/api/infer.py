@@ -44,7 +44,6 @@ app = FastAPI()
 FastAPIInstrumentor.instrument_app(app)
 
 # DONE : Instancier l'application FastAPI
-app = FastAPI()
 # DONE : Ouvrir et charger en mémoire le pickle qui sérialise le model
 with open("./src/titanic/api/resources/model.pkl", "rb") as f:
     model = pickle.load(f)
@@ -94,5 +93,5 @@ def infer(passenger: Passenger, token: str = Depends(verify_token("api:read"))) 
         res = model.predict(df_to_predict)
         span.set_attribute("prediction.result", int(res[0]))
         span.add_event("prediction_completed", {"result": int(res[0])})
-    return res.tolist()
+        return res.tolist()
 
