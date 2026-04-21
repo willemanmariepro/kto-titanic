@@ -81,6 +81,22 @@ jobs:
           export AWS_SECRET_ACCESS_KEY="${{secrets.AWS_SECRET_ACCESS_KEY}}"
 
           uv run mlflow run ./src/titanic/training -P path=all_titanic.csv --experiment-name ${{ env.EXPERIMENT_NAME }} --backend kubernetes --backend-config ./k8s/experiment/kubernetes_config.json
+      - name: Download model artifact
+        run: |
+          export MLFLOW_TRACKING_URI=$MLFLOW_TRACKING_ROUTE_URL
+          export MLFLOW_S3_ENDPOINT_URL=$MINIO_API_ROUTE_URL
+          export AWS_ACCESS_KEY_ID="${{vars.AWS_ACCESS_KEY_ID}}"
+          export AWS_SECRET_ACCESS_KEY="${{secrets.AWS_SECRET_ACCESS_KEY}}"
+          export ARTIFACT_URI=$(uv run -m titanic.ci.search_mlflow --experiment-name ${{ env.EXPERIMENT_NAME }})
+
+          echo "ARTIFACT_URI=$ARTIFACT_URI"
+          uv run mlflow artifacts download --artifact-uri $ARTIFACT_URI -d ./src/titanic/api/resources/
+
+          # could be : uv run mlflow artifacts download -r $MLFLOW_RUN_ID -a model.pkl -d ./src/titanic/api/resources/
+      - name: Build and push api image
+        run: |
+          docker build -f k8s/api/Dockerfile -t ${{ env.API_IMAGE_NAME }}:latest .
+          docker push ${{ env.API_IMAGE_NAME }}:latest
       - name: Asleep kto-mlflow with dailyclean
         run: |
             curl -X POST $DAILYCLEAN_ROUTE_URL/pods/stop
