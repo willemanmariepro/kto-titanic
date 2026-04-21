@@ -1,6 +1,6 @@
 import os
 import asyncio
-from typing as Any
+from typing import Any
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import SecretStr
